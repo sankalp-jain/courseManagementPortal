@@ -1,0 +1,15 @@
+html
+	body
+		h1 Edit Courses
+		p #{cname}
+		p #{cid}
+
+		h3 Update Course Information
+
+		form(action = '/editCourse' method = "post")
+			label Course Name
+			<input type = "text" name = "editCourse">
+			<br>
+			label Course Id
+			<input type = "text" name = "editCourseId">
+			<input type = "submit">

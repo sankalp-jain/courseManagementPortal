@@ -1,0 +1,15 @@
+html
+	body
+		h1 Delete Courses
+		p #{cname}
+		p #{cid}
+
+		h3 Delete Course Information
+
+		form(action = '/deleteCourse' method = "post")
+			label Course Name
+			<input type = "text" name = "deleteCourse">
+			<br>
+			label Course Id
+			<input type = "text" name = "deleteCourseId">
+			<input type = "submit">
