@@ -1,0 +1,15 @@
+html
+	body
+		h1 Student Details
+		p #{studName}
+		p #{regNo}
+		p #{email}
+		p #{courses}
+		p Course Name    Enroll     Unenroll
+
+		form(action = "enrUnerDetails" method = "get")
+			ul
+				each val, index in courses
+					li= val 
+						input(type='submit' name = 'enroll' + val)
+						input(type='submit' name = 'unenroll' + val)
