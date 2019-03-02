@@ -1,5 +1,6 @@
 //Initializing stuff
 var fs = require('fs');
+var tableify = require('tableify');
 var express = require('express');
 var app = express();
 app.use(express.json());
@@ -9,11 +10,8 @@ app.set('views', './views');
 app.set("view engine", "pug");
 
 //Global variables
-var courseName = [];
-var courseId = [];
-var courseEndTime = [];
-var noOfStudents = [];
-var courseStatus = [];
+var courseName = {};
+var courseNameDup = {};
 var studentList = {};
 var studentInfo = {};
 var regNo;
@@ -48,20 +46,19 @@ app.get("/studentLogin", function(req, res){
 
 
 app.post("/studentLogin", function(req, res){
-	var name = req.body.studname;
-	var pwd = req.body.pwd;
-
-	if(studentList[name] == pwd){
+	console.log(studentList);
+	if(studentList[req.body.studname] == req.body.pwd){
+		regNo = req.body.studname;
+		console.log(regNo);
 		res.redirect("studentDetails");
 	}
 	else
 		res.status(404).send("Error");
 });
 
-app.post("/studentDetails", function(req, res){
+app.get("/studentDetails", function(req, res){
 	name = regNo;
 	var details = studentInfo[name];
-	console.log(courseName.toString());
 	res.render("studentDetails", {"studName" : details.name, "regNo" : name, "email" : details.email, "courses" : courseName});
 })
 
@@ -90,7 +87,21 @@ app.post('/FillDetails', function(req, res){
 
 //EnrUnerDetails
 app.get('/enrUnerDetails', function(req, res){
-	res.send(req.body);
+	console.log(req.query);
+	var enrInfo = Object.keys(req.query)[0];
+	var str = enrInfo.split(":");
+	if(str[0] == "enroll"){
+		courseNameDup[str[1]][0] += 1;
+		courseNameDup[str[1]][1].push(regNo);
+		console.log(courseNameDup);
+	} 
+	else{
+		courseNameDup[str[1]][0] -= 1;
+		var index = courseNameDup[str[1]][1].indexOf(regNo);
+		courseNameDup[str[1]][1].splice(index, 1);
+		console.log(courseNameDup);
+	}
+	res.send(req.query);
 })
 
 //Admin Jobs
@@ -107,9 +118,16 @@ app.get('/addCourse', function(req, res){
 })
 
 app.post('/addCourse', function(req, res){
-	courseName.push(req.body.course);
-	courseId.push(req.body.courseId);
-	
+	var courseArray = [];
+	courseArray.push(req.body.courseId);
+	courseArray.push(req.body.endTime);
+	courseArray.push(req.body.status);
+
+	var courseArray2 = [];
+	courseArray2.push(0);
+	courseArray2.push([]);
+	courseName[req.body.course] = courseArray;
+	courseNameDup[req.body.course] = courseArray2;
 	res.redirect('/addCourseConfirmation');
 })
 
@@ -120,15 +138,13 @@ app.get('/addCourseConfirmation', function(req, res){
 //edit course
 
 app.get('/editCourse', function(req, res){
-	var cname = courseName.toString();
-	var cid = courseId.toString();
-	res.render('editCourses', {"cname" : cname, "cid" : cid});
+
+	res.render('editCourses', {"courses" : courseName});
 })
 
 app.post('/editCourse', function(req, res){
 	var editCourseName = req.body.editCourse;
-	var courseIndex = courseName.indexOf(editCourseName); 
-	courseId[courseIndex] = req.body.editCourseId;
+	courseName[editCourseName][0] = req.body.editCourseId;
 
 	res.redirect('editCourseConfirmation')
 })
@@ -139,18 +155,16 @@ app.get('/editCourseConfirmation', function(req, res){
 
 // delete course
 app.get('/deleteCourse', function(req, res){
-	var cname = courseName.toString();
-	var cid = courseId.toString();
-	res.render("deleteCourses", {"cname" : cname, "cid" : cid});
+	res.render("deleteCourses", {"courses" : courseName});
 })
 
 app.post('/deleteCourse', function(req, res){
 	var deleteCourseName = req.body.deleteCourse;
-	var courseIndex = courseName.indexOf(deleteCourseName); 
+	var courseIndex = courseName[deleteCourseName][0]; 
 
-	if(courseId[courseIndex] == req.body.deleteCourseId){
-		courseName.slice(courseIndex, 1);
-		courseId.slice(courseIndex, 1);
+	if(courseName[deleteCourseName][0] == req.body.deleteCourseId){
+		delete courseName[deleteCourseName];
+		console.log(courseName);
 		res.redirect('deleteCourseConfirmation')
 	}
 	else

@@ -1,8 +1,10 @@
 html
 	body
 		h1 Delete Courses
-		p #{cname}
-		p #{cid}
+		p(hidden='') #{courses}
+		ul
+			each val, index in courses
+				li= index + ":" + val
 
 		h3 Delete Course Information
 
