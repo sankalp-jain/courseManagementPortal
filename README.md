@@ -23,3 +23,6 @@ To run the project, the steps are as follows:
   
   
   Login and enroll, unenroll from courses
+
+
+Please make sure to mark the status of courses as "active" or "inactive" in the course status in admin portal

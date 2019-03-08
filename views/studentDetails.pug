@@ -21,8 +21,8 @@ html
 			ul
 				each val, index in courses
 					li= val 
-						input(type='submit' name = 'enroll:' + index)
-						input(type='submit' name = 'unenroll:' + index)
+						input(type='submit' name = 'enroll:' + index value = "enroll")
+						input(type='submit' name = 'unenroll:' + index value = "unenroll")
 
 		form(action = "genReport" method = "get")
 			input(type = "submit" value = "GenReport")
