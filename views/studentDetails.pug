@@ -1,13 +1,20 @@
 html
+	head
+
 	body
 		h1 Student Details
 		p #{studName}
 		p #{regNo}
 		p #{email}
+		p #{coursesEnrolled}
 		p(hidden = '') #{courses}
 		ul
 			each val, index in courses
 				li= index + ":" + val
+
+		button(onclick='sort()') Active Courses
+
+		p(id = 'demo')
 		p Course Name    Enroll     Unenroll
 
 		form(action = "enrUnerDetails" method = "get")
@@ -16,3 +23,23 @@ html
 					li= val 
 						input(type='submit' name = 'enroll:' + index)
 						input(type='submit' name = 'unenroll:' + index)
+
+		form(action = "genReport" method = "get")
+			input(type = "submit" value = "GenReport")
+
+		script.
+			function sort(){
+				var arr = !{JSON.stringify(courses)};
+				var keys = Object.keys(arr);
+				var result = [];
+				console.log(keys);
+				for (var i = 0; i < keys.length; i++){
+					console.log(i);
+					console.log(arr[keys[i]]);
+
+					if(arr[keys[i]][2] == "active")
+						result.push(keys[i]);
+				}
+
+				document.getElementById('demo').innerHTML = result.toString();
+			}

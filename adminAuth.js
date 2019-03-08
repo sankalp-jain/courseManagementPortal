@@ -1,6 +1,4 @@
 //Initializing stuff
-var fs = require('fs');
-var tableify = require('tableify');
 var express = require('express');
 var app = express();
 app.use(express.json());
@@ -59,7 +57,7 @@ app.post("/studentLogin", function(req, res){
 app.get("/studentDetails", function(req, res){
 	name = regNo;
 	var details = studentInfo[name];
-	res.render("studentDetails", {"studName" : details.name, "regNo" : name, "email" : details.email, "courses" : courseName});
+	res.render("studentDetails", {"studName" : details.name, "regNo" : name, "email" : details.email, "courses" : courseName, "coursesEnrolled" : details.courseEnrolled});
 })
 
 //Student signup
@@ -85,23 +83,54 @@ app.post('/FillDetails', function(req, res){
 	res.redirect("studentLogin");
 })
 
+//Generate Report
+app.get('/genReport', function(req, res){
+	var det = studentInfo[regNo];
+	res.send(det);
+})
+
 //EnrUnerDetails
 app.get('/enrUnerDetails', function(req, res){
 	console.log(req.query);
 	var enrInfo = Object.keys(req.query)[0];
 	var str = enrInfo.split(":");
+	console.log(enrInfo);
+	console.log(str);
 	if(str[0] == "enroll"){
-		courseNameDup[str[1]][0] += 1;
-		courseNameDup[str[1]][1].push(regNo);
-		console.log(courseNameDup);
+		var c = str[1];
+		console.log(courseName[c][2]);
+		if(courseName[c][2] == "active"){
+			courseNameDup[str[1]][0] += 1;
+			courseNameDup[str[1]][1].push(regNo);
+			console.log(studentInfo[regNo].courseEnrolled);
+			studentInfo[regNo].courseEnrolled.push(c);
+			console.log(courseNameDup);
+			res.send("Enrolled")
+		}
+		else
+			res.send("Please enroll yourself in active courses");
 	} 
 	else{
-		courseNameDup[str[1]][0] -= 1;
-		var index = courseNameDup[str[1]][1].indexOf(regNo);
-		courseNameDup[str[1]][1].splice(index, 1);
-		console.log(courseNameDup);
+
+		var c = str[1];
+		if(courseName[c][2] == "active"){
+
+			var index = studentInfo[regNo].courseEnrolled.indexOf(c);
+			if (index > -1) {
+			  studentInfo[regNo].courseEnrolled.splice(index, 1);
+			}
+
+			courseNameDup[str[1]][0] -= 1;
+			var index = courseNameDup[str[1]][1].indexOf(regNo);
+			courseNameDup[str[1]][1].splice(index, 1);
+			console.log(courseNameDup);
+
+			res.send("Unenrolled");			
+		}
+		else
+			res.send("You can't be unenrolled from inactive courses");
+
 	}
-	res.send(req.query);
 })
 
 //Admin Jobs
